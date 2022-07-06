@@ -71,7 +71,22 @@ def func_for_weather(message):
 
 
 def func_for_rates(message):
-    pass
+    id = message.chat.id
+    url = 'https://rates.ideil.com/'
+    response = requests.get(url)
+    html = Bs(response.content, 'html.parser')
+
+    dct_rates = {
+        'usd': [float(html.select('.js-field-bid-USD')[0].text),
+                float(html.select('.js-field-ask-USD')[0].text)],
+        'eur': [float(html.select('.js-field-bid-EUR')[0].text),
+                float(html.select('.js-field-ask-EUR')[0].text)],
+        'pln': [float(html.select('.js-field-bid-PLN')[0].text),
+                float(html.select('.js-field-ask-PLN')[0].text)],
+    }
+
+    for i, j in dct_rates.items():
+        bot.send_message(id, text=f'{i}: {j[0]}, {j[1]}')
 
 # Func for adding info about "Lottery" from URL in bot
 
