@@ -42,15 +42,10 @@ def func_for_city(message):
 
 
 def func_for_weather(message):
+    id = message.chat.id
     url = f'https://ua.sinoptik.ua/погода-{message.text}'
     response = requests.get(url)
     html = Bs(response.content, 'html.parser')
-
-    # 2nd paragraph of text
-    description1 = html.select(
-        '.wDescription.clearfix > .rSide > .description')[0].text
-    description2 = html.select(
-        '.oDescription.clearfix > .rSide > .description')[0].text
 
     # img from left side of the website near thermometer
     lst_img = [i.get("src") for i in html.find_all('img')]
@@ -58,11 +53,19 @@ def func_for_weather(message):
     with open('img.jpg', 'wb') as file:
         file.write(response_img.content)
 
+    # 2nd paragraph of text
+    description1 = html.select(
+        '.wDescription.clearfix > .rSide > .description')[0].text
+    description2 = html.select(
+        '.oDescription.clearfix > .rSide > .description')[0].text
+
     # 1st paragraph of text
     for i in html.select('#bd2'):
         temp_min = i.select('.temperature > .min > span')[0].text
         temp_max = i.select('.temperature > .max > span')[0].text
-    bot.send_message((message.chat.id, open('img.jpg', 'rb')), text=f'min: {temp_min}\nmax: {temp_max}', text=f'{description1}\n{description2}')
+        bot.send_sticker(id, open('img.jpg', 'rb'))
+    bot.send_message(
+        id, text=f'min: {temp_min} \n max: {temp_max} \n {description1} \n {description2}')
 
 # Func for adding info about "Rates" from URL in bot
 
